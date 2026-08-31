@@ -79,8 +79,10 @@ ui <- page_sidebar(
           )
       ),
         layout_columns(
-           plotOutput("routes"),
-           col_widths = c(10, -2)
+             col_widths = breakpoints(lg = c(8, -4),
+                                      md = 12,
+                                      sm = 12),
+           plotOutput("routes")
       )
 )
 
