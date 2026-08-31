@@ -4,13 +4,31 @@ library(tidyverse)
 
 source("helpers.R", local = TRUE)
 
-files <- list.files(path = './data', pattern = '.rds')
+# get list of files from the data folder, and read the data into local objects.
+# The project has two files for each player, a table of tracking data (##2018app.rds), and a table of play outcomes when they were targeted (##2018app_results).
+file_paths <- list.files(path = './data', pattern = '.rds', full.names = TRUE)
+file_names <- gsub(pattern = "\\.rds$", replacement = "", x = basename(file_paths))
+for(i in 1:length(file_names)) {
+  assign(file_names[i], readRDS(file_paths[i]))
+}
 
-# read existing RDS files and create table of players we have data for
-# create vector of player names to feed "selectInput$player"
+# create manifest of players for which we have data. First list only the base files (##2018app)
+base_file_names <- file_names[!str_detect(file_names, "result")]
 
-ck2018app <- readRDS("./data/ck2018app.rds")
-ck2018app_results <- readRDS("./data/ck2018app_results.rds")
+# pull various versions of player name, and their teams into small tibble
+player_list <- map_vec(1:length(base_file_names), function(x) {
+  tibble(fileName = paste0(base_file_names[x], ".rds"), 
+         dataElement = base_file_names[x], 
+         resultElement = paste0(base_file_names[x], "_results"), 
+         fullName = get(base_file_names[x])$displayName[1], 
+         shortName = get(paste0(base_file_names[x], "_results"))$target[1], 
+         team = get(paste0(base_file_names[x], "_results"))$possessionTeam[1],
+         prefix = str_sub(base_file_names[x], 1, 2))
+})
+
+# create player name list to provide to player selection drop down menu
+pl_inp_list <- setNames(as.list(player_list$prefix), paste0(player_list$fullName, " (", player_list$team, ")"))
+
 
 # sidebar format for NFL route map app
 ui <- page_sidebar(
@@ -18,9 +36,7 @@ ui <- page_sidebar(
           title = "NFL route maps from 2018 season",
           
           sidebar = sidebar(
-            selectInput("player", "Player:", c("Cooper Kupp (LAR)" = "ck",
-                                               "Julio Jones (ATL)" = "jj",
-                                               "Davante Adams (GB)" = "da")
+            selectInput("player", "Player:", pl_inp_list
                         ),
             
             radioButtons("plot_type", "Plot type:",
@@ -61,7 +77,7 @@ ui <- page_sidebar(
                              
                            )
           )
-       ),
+      ),
           
            plotOutput("routes"),
             textOutput("test")
@@ -85,10 +101,13 @@ server <- function(input, output, session) {
             switch(input$plot_type,
                    "lines" = plot_routes(input$player, input$weeks, isTRUE(input$outcomes)),
                    "density" = plot_density(input$player)
-            )
+           )
     })  |>
       bindEvent(c(input$redraw, input$plot_type, input$player), ignoreNULL = TRUE, ignoreInit = TRUE)
 
+#    output$test <- renderText({
+#      input$player
+#    })
 }
 
 

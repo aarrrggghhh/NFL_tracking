@@ -26,7 +26,7 @@ plot_routes <- function(player, weeks, outcomes) {
 
 plot_density <- function(player) {
         plot_data <- get(paste0(player,"2018app"))
-        full_name <- switch(player, "ck" = "Cooper Kupp", "jj" = "Julio Jones", "da" = "Davante Adams")
+        full_name <- player_list |> filter(prefix == player) |> pull(fullName)
         breaks <- exp(seq(log(0.00002), log(0.007), length.out = 80))
         breaks <- c(0, breaks)
         ggplot(data = plot_data, aes(y, abs_x)) + 
