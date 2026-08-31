@@ -78,9 +78,10 @@ ui <- page_sidebar(
                            )
           )
       ),
-          
+        layout_columns(
            plotOutput("routes"),
-            textOutput("test")
+           col_widths = c(10, -2)
+      )
 )
 
 

@@ -8,7 +8,7 @@ plot_routes <- function(player, weeks, outcomes) {
          ggplot() + 
          geom_path(data = select_routes, aes(y, abs_x, group = uPlayId)) + 
          coord_cartesian(ylim = c(-10,80), xlim = c(0, 53.3)) + 
-         theme_minimal() + 
+         theme_minimal(base_size = 16) + 
          theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.text.x = element_blank()) + 
          geom_point(data = select_outcomes, aes(y, abs_x, color = outcome), cex = 3) + 
          scale_color_manual(values = c("caught" = "#00BA38", "incomplete" = "#F8766D", "interception" = "red", "touchdown" = "purple", "touchdown catch" = "#619CFF"))
@@ -16,7 +16,7 @@ plot_routes <- function(player, weeks, outcomes) {
          ggplot() + 
          geom_path(data = select_routes, aes(y, abs_x, group = uPlayId)) + 
          coord_cartesian(ylim = c(-10, 80), xlim = c(0, 53.3)) + 
-         theme_minimal() + 
+         theme_minimal(base_size = 16) + 
          theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.text.x = element_blank()) + 
          geom_point(data = select_outcomes, aes(y, abs_x, color = outcome), cex = -1) +  # cex = -1 means these dots are hidden in output
          scale_color_manual(values = c("#00BA38", "#F8766D", "red", "purple", "#619CFF"), guide = guide_legend(override.aes = list(alpha = 0))) + 
