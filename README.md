@@ -4,4 +4,4 @@ Every year, for the past few years, the NFL runs a data analysis competition cal
 
 Felt like a good exercise in the offing - so I grabbed the data from the [2021 competition](https://www.kaggle.com/competitions/nfl-big-data-bowl-2021/overview) to see what I could do with all that data...
 
-So I built a [Route mapping Shiny app](https://aarrrggghhh-nfl.share.connect.posit.cloud) that plots certain players routes and play outcomes, as well as a density map of where they spend their time on the field. Source and data files are in the NFL_routes folder.
+So I built a <a href="https://aarrrggghhh-nfl.share.connect.posit.cloud" target="_blank">Route mapping Shiny app</a> that plots certain players routes and play outcomes, as well as a density map of where they spend their time on the field. Source and data files are in the NFL_routes folder.
