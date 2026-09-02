@@ -46,43 +46,63 @@ ui <- page_sidebar(
             # Show these inputs only when plotting actual route maps (not density)
             conditionalPanel("input.plot_type == 'lines'",
                             card(
-                               card_header("Plot parameters"),
-                               div(
-                                 tags$style(".checkbox input {     width: .9em;
-                                                                   height: .9em;
-                                                                  }
-                                            label {font-size: .8rem;}"
-                                            ),
-                                     checkboxGroupInput("weeks",
+                                  card_header("Plot parameters"),
+                                  div(
+                                      tags$style(".checkbox input {     width: .9em;
+                                                                        height: .9em;
+                                                  }
+                                                  label {font-size: .8rem;
+                                                  }"
+                                      ),
+                                      checkboxGroupInput("weeks",
                                                 "Weeks:",
                                                 choices = c(seq(1,17,1)),
                                                 selected = 1,
                                                 inline = TRUE
-                                      ),
-                                 div(
-                                   tags$style(".btn {--bs-btn-font-size: 80%;
-                                                    --bs-btn-padding-y: 2px;
-                                                    --bs-btn-padding-x: 8px;
-                                              }"),
-                                   actionButton("all", "All"),
-                                   actionButton("none", "None")
-                                 ),
-                                 br(),
-                                      checkboxInput("outcomes",
-                                           "Show play outcomes",
-                                           value = FALSE
                                       )
                                   ),
+                                  div(
+                                      tags$style(".btn {--bs-btn-font-size: 80%;
+                                                    --bs-btn-padding-y: 2px;
+                                                    --bs-btn-padding-x: 8px;
+                                                  }"),
+                                      actionButton("all", "All"),
+                                      actionButton("none", "None")
+                                  ),
+                                  checkboxInput("outcomes",
+                                           "Show play outcomes",
+                                           value = FALSE
+                                  ),
+                                  conditionalPanel("input.outcomes == 1",
+                                                  card(
+                                                        checkboxInput("tarBox",
+                                                                      "Show targets only",
+                                                                      value = FALSE
+                                                        ),
+                                                        checkboxGroupInput("selOutcomes",
+                                                                           "Outcomes to display:",
+                                                                           choices = c("Catch" = "caught",
+                                                                                       "Incompletion" = "incomplete",
+                                                                                       "Touchdown catch" = "touchdown catch",
+                                                                                       "Touchdown" = "touchdown",
+                                                                                       "Interception" = "interception"),
+                                                                           selected = c("caught", "incomplete", "touchdown catch", "touchdown", "interception"),
+                                                                           inline = TRUE
+                                                        )
+                                                  )
+                                  )
+                                 
+                            ),
                                 actionButton("redraw", "Update")
                              
-                           )
-          )
+              )
       ),
         layout_columns(
              col_widths = breakpoints(lg = c(8, -4),
                                       md = 12,
                                       sm = 12),
-           plotOutput("routes")
+           plotOutput("routes"),
+           textOutput("test")
       )
 )
 
@@ -99,17 +119,23 @@ server <- function(input, output, session) {
     observeEvent(input$none, {
       updateCheckboxGroupInput(session, "weeks", selected = 0)
     })
-    
+
+# If update button pressed, or new player selected, or different plot type radio button clicked - replot using new inputs
     output$routes <- renderPlot({
-            switch(input$plot_type,
-                   "lines" = plot_routes(input$player, input$weeks, isTRUE(input$outcomes)),
-                   "density" = plot_density(input$player)
-           )
+                                switch(input$plot_type,
+                                    "lines" = if(input$outcomes) {
+                                                              outcome_settings <- c(input$tarBox, input$selOutcomes)
+                                                              plot_routes(input$player, input$weeks, outcome_settings)
+                                              } else {
+                                                              plot_routes(input$player, input$weeks, "0")
+                                       },
+                                    "density" = plot_density(input$player)
+                                )
     })  |>
       bindEvent(c(input$redraw, input$plot_type, input$player), ignoreNULL = TRUE, ignoreInit = TRUE)
 
 #    output$test <- renderText({
-#      input$player
+#      input$weeks
 #    })
 }
 
